@@ -59,6 +59,7 @@ executable discord-bot
 
   -- Other library packages from which modules are imported.
   build-depends:       base ^>=4.12.0.0
+                     , text
                      , discord-haskell
 
   -- Directories containing source files.
@@ -66,4 +67,3 @@ executable discord-bot
 
   -- Base language which the package is written in.
   default-language:    Haskell2010
-
