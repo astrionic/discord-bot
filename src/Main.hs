@@ -33,11 +33,14 @@ echo dis = do
             echo dis
         _ -> echo dis
 
+-- | Returns true if the given message was sent by a bot
 fromBot :: Message -> Bool
 fromBot message = userIsBot (messageAuthor message)
 
+-- | Returns the handle of the user who sent the given message
 authorHandle :: Message -> String
 authorHandle message = userHandle (messageAuthor message)
 
+-- | Returns the handle of the given user
 userHandle :: User -> String
 userHandle user = (userName user) ++ "#" ++ (userDiscrim user)
