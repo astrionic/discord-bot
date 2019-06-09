@@ -21,11 +21,11 @@ main = do
     putStrLn "Starting bot!"
     token <- T.strip <$> TIO.readFile "./auth_token"
     dis <- loginRestGateway (Auth token)
-    finally (echo dis)
+    finally (handleEvent dis)
             (stopDiscord dis)
 
-echo :: (RestChan, Gateway, z) -> IO ()
-echo dis = do
+handleEvent :: (RestChan, Gateway, z) -> IO ()
+handleEvent dis = do
     event <- nextEvent dis
     case event of
         Left er -> putStrLn ("Event error: " <> show er)
@@ -39,8 +39,8 @@ echo dis = do
                 case resp of
                     Left error -> putStrLn ("REST error: " <> show error)
                     Right message -> putStrLn ("fprod-bot: " ++ (show (messageText message)))
-            echo dis
-        _ -> echo dis
+            handleEvent dis
+        _ -> handleEvent dis
 
 -- | Returns true if the given message was sent by a bot
 fromBot :: Message -> Bool
