@@ -44,3 +44,7 @@ authorHandle message = userHandle (messageAuthor message)
 -- | Returns the handle of the given user
 userHandle :: User -> String
 userHandle user = (userName user) ++ "#" ++ (userDiscrim user)
+
+-- | Returns true if the given message is a bot command (starts with '!' followed by at least one other character)
+isCommand :: String -> Bool
+isCommand (c:cs) = c == '!' && cs /= []
