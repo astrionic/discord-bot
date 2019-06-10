@@ -23,15 +23,15 @@ main = do
     -- Causes text to printed to the console immediately instead of when the program terminates
     hSetBuffering stdout LineBuffering
 
-    putStrLn "Starting bot!"
+    logToConsole "Starting bot!"
     token <- T.strip <$> TIO.readFile "./auth_token"
-    dis <- loginRestGateway (Auth token)
-    finally (handleEvent dis)
-            (stopDiscord dis)
+    discord <- loginRestGateway (Auth token)
+    finally (handleEvents discord)
+            (stopDiscord discord)
 
-handleEvent :: (RestChan, Gateway, z) -> IO ()
-handleEvent dis = do
-    event <- nextEvent dis
+handleEvents :: (RestChan, Gateway, z) -> IO ()
+handleEvents discord = do
+    event <- nextEvent discord
     case event of
         Left er -> logToConsole ("ERROR: " ++ show er)
         Right (MessageCreate message) -> do
@@ -39,15 +39,15 @@ handleEvent dis = do
                 -- Log command sent by user to console
                 logToConsole ((authorHandle message) ++ ": " ++ (show (messageText message)))
                 case T.tail (messageText message) of
-                    "commands" -> respond commandsText message dis
-                    _ -> respond utherQuote message dis
-            handleEvent dis
-        _ -> handleEvent dis
+                    "commands" -> respond commandsText message discord
+                    _ -> respond utherQuote message discord
+            handleEvents discord
+        _ -> handleEvents discord
 
 -- | Responds to a message with a given text and logs the response to the console
 respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
-respond responseText message dis = do
-    response <- (restCall dis (CreateMessage (messageChannel message) responseText))
+respond responseText message discord = do
+    response <- (restCall discord (CreateMessage (messageChannel message) responseText))
     case response of
         Left error -> logToConsole ("ERROR: " ++ show error)
         Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
