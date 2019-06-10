@@ -4,13 +4,11 @@ module Main where
 import Control.Exception (finally)
 import Control.Monad (when)
 import Data.Monoid ((<>))
-import System.IO
 import Data.Time
+import Discord
+import System.IO
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
-
-
-import Discord
 
 utherQuote :: T.Text
 utherQuote = "You are not my king yet, boy! Nor would I obey that command even if you were!"
