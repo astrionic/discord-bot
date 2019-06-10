@@ -11,8 +11,8 @@ import System.Random
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
-utherQuote :: T.Text
-utherQuote = "You are not my king yet, boy! Nor would I obey that command even if you were!"
+disobeyText :: T.Text
+disobeyText = "You are not my king yet, boy! Nor would I obey that command even if you were!"
 
 commandsText :: T.Text
 commandsText = "I support the following commands:\n\
@@ -43,12 +43,18 @@ handleEvents discord = do
                 case T.tail (messageText message) of
                     "commands" -> respond commandsText message discord
                     "role" -> respond "Not implemented yet" message discord
-                    "flip" -> respond (T.pack ("<@" ++ (show (userId (messageAuthor message))) ++ "> Flipping a coin")) message discord
-                    _ -> respond utherQuote message discord
+                    "flip" -> sendFlip message discord
+                    _ -> respond disobeyText message discord
             handleEvents discord
         _ -> handleEvents discord
 
--- | Responds to a message with a given text and logs the response to the console
+-- | Flips a coin and sends the result to the sender of the given message (in the same channel)
+sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
+sendFlip message discord = do
+    x <- flipCoin
+    respond (T.pack ("<@" ++ (authorId message) ++ "> " ++ (show x))) message discord
+
+-- | Responds to a message with a given text (in the same channel) and logs the response to the console
 respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
 respond responseText message discord = do
     response <- (restCall discord (CreateMessage (messageChannel message) responseText))
@@ -60,7 +66,12 @@ respond responseText message discord = do
 fromBot :: Message -> Bool
 fromBot message = userIsBot (messageAuthor message)
 
--- | Returns the handle of the user who sent the given message
+-- | Returns the user ID of the given message's author
+
+authorId :: Message -> String
+authorId message = show (userId (messageAuthor message))
+
+-- | Returns the handle of the given message's author
 authorHandle :: Message -> String
 authorHandle message = userHandle (messageAuthor message)
 
@@ -84,3 +95,14 @@ logToConsole s = do
     currentTime <- getZonedTime
     let formattedTime = formatTime defaultTimeLocale "%F %T" currentTime
     putStrLn (formattedTime ++ " " ++ s)
+
+data Coin = Heads | Tails deriving Show
+
+-- | Randomly returns Heads or Tails
+flipCoin :: IO Coin
+flipCoin = fmap boolToCoin (randomIO :: IO Bool) 
+
+-- | Transforms a Bool into a Coin
+boolToCoin :: Bool -> Coin
+boolToCoin True = Heads
+boolToCoin False = Tails
