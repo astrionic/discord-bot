@@ -61,6 +61,7 @@ executable discord-bot
   build-depends:       base ^>=4.12.0.0
                      , time
                      , text
+                     , random
                      , discord-haskell
 
   -- Directories containing source files.

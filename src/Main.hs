@@ -7,6 +7,7 @@ import Data.Monoid ((<>))
 import Data.Time
 import Discord
 import System.IO
+import System.Random
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
