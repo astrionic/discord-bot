@@ -39,22 +39,18 @@ handleEvent dis = do
                 -- Log command sent by user to console
                 logToConsole ((authorHandle message) ++ ": " ++ (show (messageText message)))
                 case T.tail (messageText message) of
-                    "commands" -> do
-                        -- Send response
-                        resp <- (restCall dis (CreateMessage (messageChannel message) commandsText))
-                        -- Log response to console
-                        case resp of
-                            Left error -> putStrLn ("REST error: " <> show error)
-                            Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
-                    _ -> do 
-                        -- Send response
-                        resp <- (restCall dis (CreateMessage (messageChannel message) utherQuote))
-                        -- Log response to console
-                        case resp of
-                            Left error -> putStrLn ("REST error: " <> show error)
-                            Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
+                    "commands" -> respond commandsText message dis
+                    _ -> respond utherQuote message dis
             handleEvent dis
         _ -> handleEvent dis
+
+-- | Responds to a message with a given text and logs the response to the console
+respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
+respond responseText message dis = do
+    response <- (restCall dis (CreateMessage (messageChannel message) responseText))
+    case response of
+        Left error -> putStrLn ("ERROR: " <> show error)
+        Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
 
 -- | Returns true if the given message was sent by a bot
 fromBot :: Message -> Bool
