@@ -33,13 +33,14 @@ handleEvents :: (RestChan, Gateway, z) -> IO ()
 handleEvents discord = do
     event <- nextEvent discord
     case event of
-        Left er -> logToConsole ("ERROR: " ++ show er)
+        Left error -> logToConsole ("ERROR: " ++ show error)
         Right (MessageCreate message) -> do
             when ((not (fromBot message)) && (msgIsCommand message)) $ do
                 -- Log command sent by user to console
                 logToConsole ((authorHandle message) ++ ": " ++ (show (messageText message)))
                 case T.tail (messageText message) of
                     "commands" -> respond commandsText message discord
+                    "rank" -> respond "Not implemented yet" message discord
                     _ -> respond utherQuote message discord
             handleEvents discord
         _ -> handleEvents discord
