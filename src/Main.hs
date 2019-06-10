@@ -67,7 +67,6 @@ fromBot :: Message -> Bool
 fromBot message = userIsBot (messageAuthor message)
 
 -- | Returns the user ID of the given message's author
-
 authorId :: Message -> String
 authorId message = show (userId (messageAuthor message))
 
