@@ -16,7 +16,8 @@ utherQuote = "You are not my king yet, boy! Nor would I obey that command even i
 commandsText :: T.Text
 commandsText = "I support the following commands:\n\
                \`!commands` display this message\n\
-               \`!role` is not implemented yet"
+               \`!role` is not implemented yet\n\
+               \`!flip` flips a coin"
 
 main :: IO ()
 main = do
@@ -41,6 +42,7 @@ handleEvents discord = do
                 case T.tail (messageText message) of
                     "commands" -> respond commandsText message discord
                     "role" -> respond "Not implemented yet" message discord
+                    "flip" -> respond (T.pack ("<@" ++ (show (userId (messageAuthor message))) ++ "> Flipping a coin")) message discord
                     _ -> respond utherQuote message discord
             handleEvents discord
         _ -> handleEvents discord
