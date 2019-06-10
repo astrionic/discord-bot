@@ -33,16 +33,14 @@ handleEvent dis = do
         Left er -> putStrLn ("Event error: " <> show er)
         Right (MessageCreate message) -> do
             when ((not (fromBot message)) && (msgIsCommand message)) $ do
-                currentTime <- getZonedTime
-                let formattedTime = formatTime defaultTimeLocale "%F %T" currentTime
                 -- Log command sent by user to console
-                putStrLn (formattedTime ++ " " ++ (authorHandle message) ++ ": " ++ (show (messageText message)))
+                logToConsole ((authorHandle message) ++ ": " ++ (show (messageText message)))
                 -- Send response
                 resp <- (restCall dis (CreateMessage (messageChannel message) utherQuote))
                 -- Log response to console
                 case resp of
                     Left error -> putStrLn ("REST error: " <> show error)
-                    Right message -> putStrLn (formattedTime ++ " fprod-bot: " ++ (show (messageText message)))
+                    Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
             handleEvent dis
         _ -> handleEvent dis
 
@@ -67,3 +65,10 @@ isCommand (c:cs) = (c == '!') && (head cs) /= ' '
 -- | Returns true if the given message is a bot command
 msgIsCommand :: Message -> Bool
 msgIsCommand message = isCommand (T.unpack (messageText message))
+
+-- | Prepends a time stamp to the given string and prints it to the console 
+logToConsole :: String -> IO ()
+logToConsole s = do
+    currentTime <- getZonedTime
+    let formattedTime = formatTime defaultTimeLocale "%F %T" currentTime
+    putStrLn (formattedTime ++ " " ++ s)
