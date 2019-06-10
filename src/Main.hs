@@ -33,7 +33,7 @@ handleEvent :: (RestChan, Gateway, z) -> IO ()
 handleEvent dis = do
     event <- nextEvent dis
     case event of
-        Left er -> putStrLn ("Event error: " <> show er)
+        Left er -> logToConsole ("ERROR: " ++ show er)
         Right (MessageCreate message) -> do
             when ((not (fromBot message)) && (msgIsCommand message)) $ do
                 -- Log command sent by user to console
@@ -49,7 +49,7 @@ respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
 respond responseText message dis = do
     response <- (restCall dis (CreateMessage (messageChannel message) responseText))
     case response of
-        Left error -> putStrLn ("ERROR: " <> show error)
+        Left error -> logToConsole ("ERROR: " ++ show error)
         Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
 
 -- | Returns true if the given message was sent by a bot
