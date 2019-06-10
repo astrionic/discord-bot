@@ -5,8 +5,10 @@ import Control.Exception (finally)
 import Control.Monad (when)
 import Data.Monoid ((<>))
 import System.IO
+import Data.Time
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
+
 
 import Discord
 
@@ -31,14 +33,16 @@ handleEvent dis = do
         Left er -> putStrLn ("Event error: " <> show er)
         Right (MessageCreate message) -> do
             when ((not (fromBot message)) && (msgIsCommand message)) $ do
+                currentTime <- getZonedTime
+                let formattedTime = formatTime defaultTimeLocale "%F %T" currentTime
                 -- Log command sent by user to console
-                putStrLn ((authorHandle message) ++ ": " ++ (show (messageText message)))
+                putStrLn (formattedTime ++ " " ++ (authorHandle message) ++ ": " ++ (show (messageText message)))
                 -- Send response
                 resp <- (restCall dis (CreateMessage (messageChannel message) utherQuote))
                 -- Log response to console
                 case resp of
                     Left error -> putStrLn ("REST error: " <> show error)
-                    Right message -> putStrLn ("fprod-bot: " ++ (show (messageText message)))
+                    Right message -> putStrLn (formattedTime ++ " fprod-bot: " ++ (show (messageText message)))
             handleEvent dis
         _ -> handleEvent dis
 
