@@ -15,6 +15,11 @@ import Discord
 utherQuote :: T.Text
 utherQuote = "You are not my king yet, boy! Nor would I obey that command even if you were!"
 
+commandsText :: T.Text
+commandsText = "I support the following commands:\n\
+               \`!commands` display this message\n\
+               \`!rank` does absolutely nothing"
+
 main :: IO ()
 main = do
     -- Causes text to printed to the console immediately instead of when the program terminates
@@ -35,12 +40,21 @@ handleEvent dis = do
             when ((not (fromBot message)) && (msgIsCommand message)) $ do
                 -- Log command sent by user to console
                 logToConsole ((authorHandle message) ++ ": " ++ (show (messageText message)))
-                -- Send response
-                resp <- (restCall dis (CreateMessage (messageChannel message) utherQuote))
-                -- Log response to console
-                case resp of
-                    Left error -> putStrLn ("REST error: " <> show error)
-                    Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
+                case T.tail (messageText message) of
+                    "commands" -> do
+                        -- Send response
+                        resp <- (restCall dis (CreateMessage (messageChannel message) commandsText))
+                        -- Log response to console
+                        case resp of
+                            Left error -> putStrLn ("REST error: " <> show error)
+                            Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
+                    _ -> do 
+                        -- Send response
+                        resp <- (restCall dis (CreateMessage (messageChannel message) utherQuote))
+                        -- Log response to console
+                        case resp of
+                            Left error -> putStrLn ("REST error: " <> show error)
+                            Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
             handleEvent dis
         _ -> handleEvent dis
 
