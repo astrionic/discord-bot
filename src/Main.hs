@@ -16,7 +16,7 @@ utherQuote = "You are not my king yet, boy! Nor would I obey that command even i
 commandsText :: T.Text
 commandsText = "I support the following commands:\n\
                \`!commands` display this message\n\
-               \`!rank` does absolutely nothing"
+               \`!role` is not implemented yet"
 
 main :: IO ()
 main = do
@@ -40,7 +40,7 @@ handleEvents discord = do
                 logToConsole ((authorHandle message) ++ ": " ++ (show (messageText message)))
                 case T.tail (messageText message) of
                     "commands" -> respond commandsText message discord
-                    "rank" -> respond "Not implemented yet" message discord
+                    "role" -> respond "Not implemented yet" message discord
                     _ -> respond utherQuote message discord
             handleEvents discord
         _ -> handleEvents discord
