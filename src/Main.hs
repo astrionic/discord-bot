@@ -23,14 +23,8 @@ commandsText :: T.Text
 commandsText = "I support the following commands:\n\
                \`!commands` display this message\n\
                \`!role` is not implemented yet\n\
-               \`!flip` flips a coin"
-
--- |Upper limit for the random rndUpperLimitber generator
-maxRoll = 1000000 :: Int
-
--- |Text sent by the bot if an invalid argument is used for the !roll command
-invArgText :: T.Text
-invArgText = "Invalid argument, integer between 1 and " ++ maxRoll ++ " required."
+               \`!flip` flips a coin\n\
+               \`!roll 20` rolls a 20-sided die. Also works with any other integer from 1 to 1000000."
 
 main :: IO ()
 main = do
@@ -62,17 +56,14 @@ handleEvents discord = do
                             let arg = (words (tail (T.unpack (messageText message)))) !! 1
                             let rndUpperLimit = readMaybeInt arg
                             case rndUpperLimit of
-                                Just n -> if n >= 1 && n <= maxRoll
+                                Just n -> if n >= 1 && n <= 1000000
                                           then do
                                             rndInt <- randomRIO (1, n)
-                                            responseMsg <- T.pack (mentionAuthor message ++ " rolls " ++ show rndInt ++ " (1-" ++ (show n) ++ ")")
-                                            respond responseMsg message discord
+                                            respond (T.pack (mentionAuthor message ++ " rolls " ++ show rndInt ++ " (1-" ++ (show n) ++ ")")) message discord
                                           else do
-                                            responseMsg <- T.pack ((mentionAuthor message) ++ " " ++ invArgText)
-                                            respond responseMsg message discord
+                                            respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000000 required.")) message discord
                                 Nothing -> do
-                                    responseMsg <- T.pack ((mentionAuthor message) ++ " " ++ invArgText)
-                                    respond responseMsg message discord
+                                    respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000000 required.")) message discord
                          else respond disobeyText message discord
             handleEvents discord
         _ -> handleEvents discord
