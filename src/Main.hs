@@ -11,6 +11,8 @@ import System.Random
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
+import Coin
+
 -- |Text sent by the bot when an unknown command is used
 disobeyText :: T.Text
 disobeyText = "You are not my king yet, boy! Nor would I obey that command even if you were!"
@@ -50,8 +52,6 @@ handleEvents discord = do
                     _ -> respond disobeyText message discord
             handleEvents discord
         _ -> handleEvents discord
-
-stringToCmdType _ = UnknownCmd
 
 -- |Flips a coin and sends the result to the sender of the given message (in the same channel)
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
@@ -99,14 +99,3 @@ logToConsole s = do
     currentTime <- getZonedTime
     let formattedTime = formatTime defaultTimeLocale "%F %T" currentTime
     putStrLn (formattedTime ++ " " ++ s)
-
-data Coin = Heads | Tails deriving Show
-
--- |Randomly returns Heads or Tails
-flipCoin :: IO Coin
-flipCoin = fmap boolToCoin (randomIO :: IO Bool) 
-
--- |Transforms a Bool into a Coin
-boolToCoin :: Bool -> Coin
-boolToCoin True = Heads
-boolToCoin False = Tails
