@@ -31,7 +31,7 @@ license:             NONE
 -- license-file:        LICENSE
 
 -- The package author(s).
-author:              Adrian Hitz, Christian Würsch
+author:              Adrian Hitz
 
 -- An email address to which users can send suggestions, bug reports, and
 -- patches.
@@ -44,7 +44,7 @@ author:              Adrian Hitz, Christian Würsch
 
 -- Extra files to be distributed with the package, such as examples or a
 -- README.
--- extra-source-files:  CHANGELOG.md
+  extra-source-files:  README.md
 
 
 executable discord-bot
@@ -52,13 +52,16 @@ executable discord-bot
   main-is:             Main.hs
 
   -- Modules included in this executable, other than Main.
-  -- other-modules:
+  other-modules:       Coin
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
   build-depends:       base ^>=4.12.0.0
+                     , time
+                     , text
+                     , random
                      , discord-haskell
 
   -- Directories containing source files.
@@ -66,4 +69,3 @@ executable discord-bot
 
   -- Base language which the package is written in.
   default-language:    Haskell2010
-
