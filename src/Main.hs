@@ -25,6 +25,13 @@ commandsText = "I support the following commands:\n\
                \`!role` is not implemented yet\n\
                \`!flip` flips a coin"
 
+-- |Upper limit for the random rndUpperLimitber generator
+maxRoll = 1000000 :: Int
+
+-- |Text sent by the bot if an invalid argument is used for the !roll command
+invArgText :: T.Text
+invArgText = "Invalid argument, integer between 1 and " ++ maxRoll ++ " required."
+
 main :: IO ()
 main = do
     -- Causes text to printed to the console immediately instead of when the program terminates
@@ -53,14 +60,19 @@ handleEvents discord = do
                     otherCmd -> if (T.isPrefixOf "roll " (T.tail (messageText message))) && (length (words (tail (T.unpack (messageText message))))) >= 2
                          then do
                             let arg = (words (tail (T.unpack (messageText message)))) !! 1
-                            let num = readMaybeInt arg
-                            case num of
-                                Just x -> if x >= 1 && x <= 1000000
+                            let rndUpperLimit = readMaybeInt arg
+                            case rndUpperLimit of
+                                Just n -> if n >= 1 && n <= maxRoll
                                           then do
-                                            rndInt <- randomRIO (1, x)
-                                            respond (T.pack (mentionAuthor message ++ " rolls " ++ show rndInt ++ " (1-" ++ (show x) ++ ")")) message discord
-                                          else respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000000 required.")) message discord
-                                Nothing -> respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000000 required.")) message discord
+                                            rndInt <- randomRIO (1, n)
+                                            responseMsg <- T.pack (mentionAuthor message ++ " rolls " ++ show rndInt ++ " (1-" ++ (show n) ++ ")")
+                                            respond responseMsg message discord
+                                          else do
+                                            responseMsg <- T.pack ((mentionAuthor message) ++ " " ++ invArgText)
+                                            respond responseMsg message discord
+                                Nothing -> do
+                                    responseMsg <- T.pack ((mentionAuthor message) ++ " " ++ invArgText)
+                                    respond responseMsg message discord
                          else respond disobeyText message discord
             handleEvents discord
         _ -> handleEvents discord
@@ -72,8 +84,8 @@ readMaybeInt = readMaybe
 -- |Flips a coin and sends the result to the sender of the given message (in the same channel)
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
 sendFlip message discord = do
-    x <- flipCoin
-    respond (T.pack (mentionAuthor message ++ " " ++ (show x))) message discord
+    n <- flipCoin
+    respond (T.pack (mentionAuthor message ++ " " ++ (show n))) message discord
 
 -- |Creates a mention of the given message's author (format: "<@userid>" where "userid" is the user's integer ID)
 mentionAuthor :: Message -> String
