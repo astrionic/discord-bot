@@ -37,7 +37,7 @@ main = do
     finally (handleEvents discord)
             (stopDiscord discord)
 
--- |Event loops
+-- |Event loop
 handleEvents :: (RestChan, Gateway, z) -> IO ()
 handleEvents discord = do
     event <- nextEvent discord
@@ -51,21 +51,9 @@ handleEvents discord = do
                     "commands" -> respond commandsText message discord
                     "role" -> respond "Not implemented yet" message discord
                     "flip" -> sendFlip message discord
-                    "roll" -> respond "The `!roll` command requires an argument (e.g. `!roll 20`)." message discord
-                    otherCmd -> if (T.isPrefixOf "roll " (T.tail (messageText message))) && (length (words (tail (T.unpack (messageText message))))) >= 2
-                         then do
-                            let arg = (words (tail (T.unpack (messageText message)))) !! 1
-                            let rndUpperLimit = readMaybeInt arg
-                            case rndUpperLimit of
-                                Just n -> if n >= 1 && n <= 1000000
-                                          then do
-                                            rndInt <- randomRIO (1, n)
-                                            respond (T.pack (mentionAuthor message ++ " rolls " ++ show rndInt ++ " (1-" ++ (show n) ++ ")")) message discord
-                                          else do
-                                            respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000000 required.")) message discord
-                                Nothing -> do
-                                    respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000000 required.")) message discord
-                         else respond disobeyText message discord
+                    "roll" -> respond (T.pack ((mentionAuthor message) ++ " The `!roll` command \
+                        \requires an argument (e.g. `!roll 20`).")) message discord
+                    otherCmd -> handleOtherCmd message discord
             handleEvents discord
         _ -> handleEvents discord
 
@@ -123,3 +111,19 @@ logToConsole s = do
     currentTime <- getZonedTime
     let formattedTime = formatTime defaultTimeLocale "%F %T" currentTime
     putStrLn (formattedTime ++ " " ++ s)
+
+handleOtherCmd :: Message -> (RestChan, Gateway, z) -> IO ()
+handleOtherCmd msg dis = if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (words (tail (T.unpack (messageText msg))))) >= 2
+                         then do
+                            let arg = (words (tail (T.unpack (messageText msg)))) !! 1
+                            let rndUpperLimit = readMaybeInt arg
+                            case rndUpperLimit of
+                                Just n -> if n >= 1 && n <= 1000000
+                                            then do
+                                            rndInt <- randomRIO (1, n)
+                                            respond (T.pack (mentionAuthor msg ++ " rolls " ++ show rndInt ++ " (1-" ++ (show n) ++ ")")) msg dis
+                                            else do
+                                            respond (T.pack ((mentionAuthor msg) ++ " Invalid argument, integer between 1 and 1000000 required.")) msg dis
+                                Nothing -> do
+                                    respond (T.pack ((mentionAuthor msg) ++ " Invalid argument, integer between 1 and 1000000 required.")) msg dis
+                         else respond disobeyText msg dis
