@@ -51,26 +51,6 @@ handleEvents discord = do
             handleEvents discord
         _ -> handleEvents discord
 
-data CmdType = ListCmd | RoleCmd | FlipCmd | UnknownCmd
-
-data BotCmd = MakeBotCmd CmdType String
-
--- |Extracts a command from a string. Returns Nothing if the string doesn't contain a correctly formatted command.
-cmdFromString :: String -> Maybe BotCmd
-cmdFromString [] = Nothing
-cmdFromString [c] = Nothing
-cmdFromString (c:cs) = let w = words cs
-                         in case head w of
-                            "commands" -> Just (MakeBotCmd ListCmd (unwords (tail w)))
-                            "role" -> Just (MakeBotCmd RoleCmd (unwords (tail w)))
-                            "flip" -> Just (MakeBotCmd FlipCmd (unwords (tail w)))
-                            _ -> Just (MakeBotCmd UnknownCmd (unwords (tail w)))
-
--- |Converts a string to the corresponding command type
-stringToCmdType :: String -> CmdType
-stringToCmdType "commands" = ListCmd
-stringToCmdType "role" = RoleCmd
-stringToCmdType "flip" = FlipCmd
 stringToCmdType _ = UnknownCmd
 
 -- |Flips a coin and sends the result to the sender of the given message (in the same channel)
