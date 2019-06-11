@@ -55,12 +55,12 @@ handleEvents discord = do
                             let arg = (words (tail (T.unpack (messageText message)))) !! 1
                             let num = readMaybeInt arg
                             case num of
-                                Just x -> if x >= 1 && x <= 1000
+                                Just x -> if x >= 1 && x <= 1000000
                                           then do
                                             rndInt <- randomRIO (1, x)
                                             respond (T.pack (mentionAuthor message ++ " rolls " ++ show rndInt ++ " (1-" ++ (show x) ++ ")")) message discord
-                                          else respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000 required.")) message discord
-                                Nothing -> respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000 required.")) message discord
+                                          else respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000000 required.")) message discord
+                                Nothing -> respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000000 required.")) message discord
                          else respond disobeyText message discord
             handleEvents discord
         _ -> handleEvents discord
