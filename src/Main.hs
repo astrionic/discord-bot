@@ -11,9 +11,11 @@ import System.Random
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
+-- |Text sent by the bot when an unknown command is used
 disobeyText :: T.Text
 disobeyText = "You are not my king yet, boy! Nor would I obey that command even if you were!"
 
+-- |Text listing the supported commands
 commandsText :: T.Text
 commandsText = "I support the following commands:\n\
                \`!commands` display this message\n\
@@ -48,13 +50,13 @@ handleEvents discord = do
             handleEvents discord
         _ -> handleEvents discord
 
--- | Flips a coin and sends the result to the sender of the given message (in the same channel)
+-- |Flips a coin and sends the result to the sender of the given message (in the same channel)
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
 sendFlip message discord = do
     x <- flipCoin
     respond (T.pack ("<@" ++ (authorId message) ++ "> " ++ (show x))) message discord
 
--- | Responds to a message with a given text (in the same channel) and logs the response to the console
+-- |Responds to a message with a given text (in the same channel) and logs the response to the console
 respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
 respond responseText message discord = do
     response <- (restCall discord (CreateMessage (messageChannel message) responseText))
@@ -62,33 +64,33 @@ respond responseText message discord = do
         Left error -> logToConsole ("ERROR: " ++ show error)
         Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
 
--- | Returns true if the given message was sent by a bot
+-- |Returns true if the given message was sent by a bot
 fromBot :: Message -> Bool
 fromBot message = userIsBot (messageAuthor message)
 
--- | Returns the user ID of the given message's author
+-- |Returns the user ID of the given message's author
 authorId :: Message -> String
 authorId message = show (userId (messageAuthor message))
 
--- | Returns the handle of the given message's author
+-- |Returns the handle of the given message's author
 authorHandle :: Message -> String
 authorHandle message = userHandle (messageAuthor message)
 
--- | Returns the handle of the given user
+-- |Returns the handle of the given user
 userHandle :: User -> String
 userHandle user = (userName user) ++ "#" ++ (userDiscrim user)
 
--- | Returns true if the given string is a bot command (starts with '!' followed by at least one other non-space character)
+-- |Returns true if the given string is a bot command (starts with '!' followed by at least one other non-space character)
 isCommand :: String -> Bool
 isCommand [] = False
 isCommand [c] = False
 isCommand (c:cs) = (c == '!') && (head cs) /= ' '
 
--- | Returns true if the given message is a bot command
+-- |Returns true if the given message is a bot command
 msgIsCommand :: Message -> Bool
 msgIsCommand message = isCommand (T.unpack (messageText message))
 
--- | Prepends a time stamp to the given string and prints it to the console 
+-- |Prepends a time stamp to the given string and prints it to the console 
 logToConsole :: String -> IO ()
 logToConsole s = do
     currentTime <- getZonedTime
@@ -97,11 +99,11 @@ logToConsole s = do
 
 data Coin = Heads | Tails deriving Show
 
--- | Randomly returns Heads or Tails
+-- |Randomly returns Heads or Tails
 flipCoin :: IO Coin
 flipCoin = fmap boolToCoin (randomIO :: IO Bool) 
 
--- | Transforms a Bool into a Coin
+-- |Transforms a Bool into a Coin
 boolToCoin :: Bool -> Coin
 boolToCoin True = Heads
 boolToCoin False = Tails
