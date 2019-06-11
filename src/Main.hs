@@ -8,6 +8,7 @@ import Data.Time
 import Discord
 import System.IO
 import System.Random
+import Text.Read
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
@@ -49,9 +50,21 @@ handleEvents discord = do
                     "commands" -> respond commandsText message discord
                     "role" -> respond "Not implemented yet" message discord
                     "flip" -> sendFlip message discord
-                    _ -> respond disobeyText message discord
+                    otherCmd -> if (T.isPrefixOf "roll " (T.tail (messageText message))) && (length (words (tail (T.unpack (messageText message))))) >= 2
+                         then do
+                            let arg = (words (tail (T.unpack (messageText message)))) !! 1
+                            let num = readMaybeInt arg
+                            case num of
+                                Just x -> if x > 1 && x < 1000
+                                          then respond "Work in progress" message discord
+                                          else respond "Invalid argument, integer between 1 and 1000 required." message discord
+                                Nothing -> respond "Invalid argument, integer between 1 and 1000 required." message discord
+                         else respond disobeyText message discord
             handleEvents discord
         _ -> handleEvents discord
+
+readMaybeInt :: String -> Maybe Int
+readMaybeInt = readMaybe
 
 -- |Flips a coin and sends the result to the sender of the given message (in the same channel)
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
