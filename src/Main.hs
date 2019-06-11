@@ -21,10 +21,10 @@ disobeyText = "You are not my king yet, boy! Nor would I obey that command even 
 -- |Text listing the supported commands
 commandsText :: T.Text
 commandsText = "I support the following commands:\n\
-               \`!commands` display this message\n\
-               \`!role` is not implemented yet\n\
-               \`!flip` flips a coin\n\
-               \`!roll 20` rolls a 20-sided die. Also works with any other integer from 1 to 1000000."
+               \`!commands` displays this message.\n\
+               \`!role` is not implemented yet.\n\
+               \`!flip` flips a coin.\n\
+               \`!roll 20` rolls a 20-sided die. Also works with any other integer from `1` to `1000000`."
 
 main :: IO ()
 main = do
@@ -51,6 +51,7 @@ handleEvents discord = do
                     "commands" -> respond commandsText message discord
                     "role" -> respond "Not implemented yet" message discord
                     "flip" -> sendFlip message discord
+                    "roll" -> respond "The `!roll` command requires an argument (e.g. `!roll 20`)." message discord
                     otherCmd -> if (T.isPrefixOf "roll " (T.tail (messageText message))) && (length (words (tail (T.unpack (messageText message))))) >= 2
                          then do
                             let arg = (words (tail (T.unpack (messageText message)))) !! 1
