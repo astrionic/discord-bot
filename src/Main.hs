@@ -57,12 +57,13 @@ handleEvents discord = do
                             case num of
                                 Just x -> if x > 1 && x < 1000
                                           then respond "Work in progress" message discord
-                                          else respond "Invalid argument, integer between 1 and 1000 required." message discord
-                                Nothing -> respond "Invalid argument, integer between 1 and 1000 required." message discord
+                                          else respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000 required.")) message discord
+                                Nothing -> respond (T.pack ((mentionAuthor message) ++ " Invalid argument, integer between 1 and 1000 required.")) message discord
                          else respond disobeyText message discord
             handleEvents discord
         _ -> handleEvents discord
 
+-- |Tries to read an int from a string
 readMaybeInt :: String -> Maybe Int
 readMaybeInt = readMaybe
 
@@ -70,7 +71,11 @@ readMaybeInt = readMaybe
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
 sendFlip message discord = do
     x <- flipCoin
-    respond (T.pack ("<@" ++ (authorId message) ++ "> " ++ (show x))) message discord
+    respond (T.pack (mentionAuthor message ++ " " ++ (show x))) message discord
+
+-- |Creates a mention of the given message's author (format: "<@userid>" where "userid" is the user's integer ID)
+mentionAuthor :: Message -> String
+mentionAuthor message = "<@" ++ (authorId message) ++ ">"
 
 -- |Responds to a message with a given text (in the same channel) and logs the response to the console
 respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
