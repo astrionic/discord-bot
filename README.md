@@ -1,6 +1,19 @@
 # discord-bot
-A general-purpose Discord bot written in Haskell for a functional programming class.
+A small Discord bot written in Haskell for a functional programming class.
 
+## Features
+Supports the following commands:
+
+- `!commands` to show a list of available commands
+- `!flip` flips a coin
+- `!roll n` rolls an n-sided die, where n is an integer from 1 to 1,000,000.
+
+## Planned Features
+A command that lets users set their own role inside a channel was originally planned, but could unfortunately not be implemented because the library [discord-haskell](https://github.com/aquarial/discord-haskell) didn't provide the required functionality yet.
+
+## Dependencies
+
+- [discord-haskell](https://github.com/aquarial/discord-haskell)
 
 ## Usage
 
