@@ -31,7 +31,7 @@ license:             NONE
 -- license-file:        LICENSE
 
 -- The package author(s).
-author:              Adrian Hitz, Christian Würsch
+author:              Adrian Hitz
 
 -- An email address to which users can send suggestions, bug reports, and
 -- patches.
@@ -44,7 +44,7 @@ author:              Adrian Hitz, Christian Würsch
 
 -- Extra files to be distributed with the package, such as examples or a
 -- README.
--- extra-source-files:  CHANGELOG.md
+  extra-source-files:  README.md
 
 
 executable discord-bot
