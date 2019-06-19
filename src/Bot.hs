@@ -27,9 +27,10 @@ commandsText = "I support the following commands:\n\
                \`!flip` flips a coin.\n\
                \`!roll 20` rolls a 20-sided die. Also works with any other integer from `1` to `1000000`."
 
+-- |Starts the bot
 botMain :: IO ()
 botMain = do
-    -- Causes text to printed to the console immediately instead of when the program terminates
+    -- Causes text to be printed to the console immediately instead of when the program terminates
     hSetBuffering stdout LineBuffering
 
     logToConsole "Starting bot!"
@@ -117,6 +118,8 @@ logToConsole s = do
     let formattedTime = formatTime defaultTimeLocale "%F %T" currentTime
     putStrLn (formattedTime ++ " " ++ s)
 
+-- TODO Clean this mess up.
+-- |Handles longer commands.
 handleOtherCmd :: Message -> (RestChan, Gateway, z) -> IO ()
 handleOtherCmd msg dis = if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (words (tail (T.unpack (messageText msg))))) >= 2
                          then do
