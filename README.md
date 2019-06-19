@@ -19,7 +19,7 @@ A command that lets users set their own role inside a channel was originally pla
 
 To run the bot, create a file called `auth_token` in the project's root directory and copy your Discord bot's authentication token into this file. You can get such a token by creating a bot on [Discord's developer portal](https://discordapp.com/developers/applications/) if you don't already have one. Make sure you don't accidentally share it!
 
-Build an run the project using [Stack](https://www.haskellstack.org):
+Build and run the project using [Stack](https://www.haskellstack.org):
 
 ```
 $ stack build
