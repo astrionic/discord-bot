@@ -1,11 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Main where
+module Bot where
 
 import Control.Exception (finally)
 import Control.Monad (when)
 import Data.Monoid ((<>))
 import Data.Time
 import Discord
+import System.Directory
 import System.IO
 import System.Random
 import Text.Read
@@ -26,16 +27,20 @@ commandsText = "I support the following commands:\n\
                \`!flip` flips a coin.\n\
                \`!roll 20` rolls a 20-sided die. Also works with any other integer from `1` to `1000000`."
 
-main :: IO ()
-main = do
+botMain :: IO ()
+botMain = do
     -- Causes text to printed to the console immediately instead of when the program terminates
     hSetBuffering stdout LineBuffering
 
     logToConsole "Starting bot!"
-    token <- T.strip <$> TIO.readFile "./auth_token"
-    discord <- loginRestGateway (Auth token)
-    finally (handleEvents discord)
-            (stopDiscord discord)
+    fileExists <- doesFileExist "./auth_token"
+    if fileExists then do
+        token <- T.strip <$> TIO.readFile "./auth_token"
+        discord <- loginRestGateway (Auth token)
+        finally (handleEvents discord)
+                (stopDiscord discord)
+    else
+        logToConsole "ERROR: Cant find auth_token."
 
 -- |Event loop
 handleEvents :: (RestChan, Gateway, z) -> IO ()
