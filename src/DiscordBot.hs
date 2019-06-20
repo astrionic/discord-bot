@@ -86,7 +86,7 @@ handleEvents discord = do
 
 -- |Tries to read an int from a 'Data.Text.Text'
 readMaybeInt :: T.Text -> Maybe Int
-readMaybeInt t = readMaybe (T.unpack t)
+readMaybeInt = readMaybe . T.unpack
 
 -- |Flips a coin and sends the result to the sender of the given message (in the same channel)
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
@@ -101,7 +101,6 @@ respond responseText message discord = do
     case response of
         Left error -> logToConsole ("ERROR: " <> T.pack (show error))
         Right message -> logToConsole ("fprod-bot: " <> (messageText message))
-
 
 -- |Returns true if the given string is a bot command (starts with '!' followed by at least one other non-space character)
 isCommand :: String -> Bool
