@@ -16,12 +16,12 @@ mentionAuthor :: Message -> T.Text
 mentionAuthor message = "<@" <> authorId message <> ">"
 
 -- |Returns the handle of the given user
-userHandle :: User -> String
-userHandle user = (userName user) ++ "#" ++ (userDiscrim user)
+userHandle :: User -> T.Text
+userHandle user = T.pack ((userName user) ++ "#" ++ (userDiscrim user))
 
 -- |Returns the handle of the given message's author
 authorHandle :: Message -> T.Text
-authorHandle message = T.pack (userHandle (messageAuthor message))
+authorHandle message = userHandle (messageAuthor message)
 
 -- |Returns the user ID of the given message's author
 authorId :: Message -> T.Text
