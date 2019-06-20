@@ -1,4 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
+
+{-|
+Module      : DiscordBot
+Description : A small Discord bot with the ability to respond to commands, flip coins and roll dice.
+Copyright   : (c) Adrian Hitz, 2019
+Stability   : experimental
+-}
 module DiscordBot where
 
 import Control.Exception (finally)

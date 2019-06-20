@@ -1,5 +1,10 @@
 module DiscordExtensions where
-
+{-|
+Module      : DiscordExtensions
+Description : Contains some useful functions related to the discord-haskell library.
+Copyright   : (c) Adrian Hitz, 2019
+Stability   : experimental
+-}
 import Discord
 
 -- |Creates a mention of the given message's author (format: "<@userid>" where "userid" is the user's integer ID)
