@@ -51,6 +51,17 @@ startBot = do
     else
         logToConsole "ERROR: Cant find auth_token."
 
+-- |Reads the auth token from a file. Returns 'Nothing' if the file doesn't exist.
+readAuthToken :: IO (Maybe T.Text)
+readAuthToken = do
+    fileExists <- doesFileExist "./auth_token"
+    if fileExists
+    then do
+        token <- T.strip <$> TIO.readFile "./auth_token"
+        return (Just token)
+    else
+        return Nothing
+
 -- |Event loop
 handleEvents :: (RestChan, Gateway, z) -> IO ()
 handleEvents discord = do
