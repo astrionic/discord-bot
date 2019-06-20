@@ -36,8 +36,8 @@ commandsText = "I support the following commands:\n\
                \`!roll 20` rolls a 20-sided die. Also works with any other integer from `1` to `1000000`."
 
 -- |Starts the bot
-botMain :: IO ()
-botMain = do
+startBot :: IO ()
+startBot = do
     -- Causes text to be printed to the console immediately instead of when the program terminates
     hSetBuffering stdout LineBuffering
 
