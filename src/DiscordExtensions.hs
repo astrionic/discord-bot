@@ -1,12 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module DiscordExtensions where
 {-|
 Module      : DiscordExtensions
 Description : Contains some useful functions related to the discord-haskell library.
 Copyright   : (c) Adrian Hitz, 2019
 Stability   : experimental
 -}
+module DiscordExtensions where
+
 import Data.Monoid ((<>))
 import Discord
 import qualified Data.Text as T
