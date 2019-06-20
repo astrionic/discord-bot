@@ -102,7 +102,8 @@ respond responseText message discord = do
         Left error -> logToConsole ("ERROR: " <> T.pack (show error))
         Right message -> logToConsole ("fprod-bot: " <> (messageText message))
 
--- |Returns true if the given string is a bot command (starts with '!' followed by at least one other non-space character)
+-- |Returns true if the given string is a bot command (starts with '!' followed by at least one other non-space
+-- character)
 isCommand :: String -> Bool
 isCommand [] = False
 isCommand [c] = False
