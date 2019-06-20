@@ -11,7 +11,6 @@ module DiscordBot where
 import Control.Exception (finally)
 import Control.Monad (when)
 import Data.Monoid ((<>))
-import Data.Time
 import Discord
 import System.Directory
 import System.IO
@@ -57,11 +56,11 @@ handleEvents :: (RestChan, Gateway, z) -> IO ()
 handleEvents discord = do
     event <- nextEvent discord
     case event of
-        Left error -> logToConsole ("ERROR: " ++ show error)
+        Left error -> logToConsole ("ERROR: " <> T.pack (show error))
         Right (MessageCreate message) -> do
             when ((not (fromBot message)) && (msgIsCommand message)) $ do
                 -- Log command sent by user to console
-                logToConsole ((T.unpack (authorHandle message)) ++ ": " ++ (show (messageText message)))
+                logToConsole ((authorHandle message) <> ": " <> (messageText message))
                 case T.tail (messageText message) of
                     "commands" -> respond commandsText message discord
                     "role" -> respond "Not implemented yet" message discord
@@ -87,8 +86,8 @@ respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
 respond responseText message discord = do
     response <- (restCall discord (CreateMessage (messageChannel message) responseText))
     case response of
-        Left error -> logToConsole ("ERROR: " ++ show error)
-        Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
+        Left error -> logToConsole ("ERROR: " <> T.pack (show error))
+        Right message -> logToConsole ("fprod-bot: " <> (messageText message))
 
 
 -- |Returns true if the given string is a bot command (starts with '!' followed by at least one other non-space character)
