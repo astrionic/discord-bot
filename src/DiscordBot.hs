@@ -35,6 +35,9 @@ commandsText = "I support the following commands:\n\
                \`!flip` flips a coin.\n\
                \`!roll 20` rolls a 20-sided die. Also works with any other integer from `1` to `1000000`."
 
+-- |Path to the authentication token
+authTokenPath = "./auth_token" :: String
+
 -- |Starts the bot
 startBot :: IO ()
 startBot = do
@@ -42,7 +45,7 @@ startBot = do
     hSetBuffering stdout LineBuffering
 
     logToConsole "Starting bot!"
-    maybeToken <- readAuthToken
+    maybeToken <- readAuthToken authTokenPath
     case maybeToken of
         Nothing -> logToConsole "ERROR: Cant find auth_token."
         Just token -> do
@@ -51,12 +54,12 @@ startBot = do
                     (stopDiscord discord)
 
 -- |Reads the auth token from a file. Returns 'Nothing' if the file doesn't exist.
-readAuthToken :: IO (Maybe T.Text)
-readAuthToken = do
-    fileExists <- doesFileExist "./auth_token"
+readAuthToken :: String -> IO (Maybe T.Text)
+readAuthToken path = do
+    fileExists <- doesFileExist path
     if fileExists
     then do
-        token <- T.strip <$> TIO.readFile "./auth_token"
+        token <- T.strip <$> TIO.readFile path
         return (Just token)
     else
         return Nothing
