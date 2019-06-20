@@ -116,17 +116,18 @@ msgIsCommand message = isCommand (T.unpack (messageText message))
 -- TODO Clean this mess up.
 -- |Handles longer commands.
 handleOtherCmd :: Message -> (RestChan, Gateway, z) -> IO ()
-handleOtherCmd msg dis = if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (T.words (T.tail (messageText msg)))) >= 2
-                         then do
-                            let arg = (T.words (T.tail (messageText msg))) !! 1
-                            let rndUpperLimit = readMaybeInt arg
-                            case rndUpperLimit of
-                                Just n -> if n >= 1 && n <= 1000000
-                                            then do
-                                            rndInt <- randomRIO (1, n)
-                                            respond (mentionAuthor msg <> " rolls " <> T.pack (show rndInt) <> " (1-" <> T.pack (show n) <> ")") msg dis
-                                            else do
-                                            respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
-                                Nothing -> do
-                                    respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
-                         else respond disobeyText msg dis
+handleOtherCmd msg dis =
+    if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (T.words (T.tail (messageText msg)))) >= 2
+    then do
+    let arg = (T.words (T.tail (messageText msg))) !! 1
+    let rndUpperLimit = readMaybeInt arg
+    case rndUpperLimit of
+        Just n -> if n >= 1 && n <= 1000000
+                    then do
+                    rndInt <- randomRIO (1, n)
+                    respond (mentionAuthor msg <> " rolls " <> T.pack (show rndInt) <> " (1-" <> T.pack (show n) <> ")") msg dis
+                    else do
+                    respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
+        Nothing -> do
+            respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
+    else respond disobeyText msg dis
