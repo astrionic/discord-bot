@@ -60,7 +60,7 @@ handleEvents discord = do
         Right (MessageCreate message) -> do
             when ((not (fromBot message)) && (msgIsCommand message)) $ do
                 -- Log command sent by user to console
-                logToConsole ((authorHandle message) ++ ": " ++ (show (messageText message)))
+                logToConsole ((T.unpack (authorHandle message)) ++ ": " ++ (show (messageText message)))
                 case T.tail (messageText message) of
                     "commands" -> respond commandsText message discord
                     "role" -> respond "Not implemented yet" message discord

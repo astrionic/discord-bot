@@ -20,8 +20,8 @@ userHandle :: User -> String
 userHandle user = (userName user) ++ "#" ++ (userDiscrim user)
 
 -- |Returns the handle of the given message's author
-authorHandle :: Message -> String
-authorHandle message = userHandle (messageAuthor message)
+authorHandle :: Message -> T.Text
+authorHandle message = T.pack (userHandle (messageAuthor message))
 
 -- |Returns the user ID of the given message's author
 authorId :: Message -> T.Text
