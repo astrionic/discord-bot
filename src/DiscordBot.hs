@@ -71,7 +71,7 @@ handleEvents discord = do
             handleEvents discord
         _ -> handleEvents discord
 
--- |Tries to read an int from a string
+-- |Tries to read an int from a 'Data.Text.Text'
 readMaybeInt :: T.Text -> Maybe Int
 readMaybeInt t = readMaybe (T.unpack t)
 
@@ -110,7 +110,7 @@ logToConsole s = do
 -- TODO Clean this mess up.
 -- |Handles longer commands.
 handleOtherCmd :: Message -> (RestChan, Gateway, z) -> IO ()
-handleOtherCmd msg dis = if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (words (tail (T.unpack (messageText msg))))) >= 2
+handleOtherCmd msg dis = if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (T.words (T.tail (messageText msg)))) >= 2
                          then do
                             let arg = (T.words (T.tail (messageText msg))) !! 1
                             let rndUpperLimit = readMaybeInt arg
