@@ -72,8 +72,8 @@ handleEvents discord = do
         _ -> handleEvents discord
 
 -- |Tries to read an int from a string
-readMaybeInt :: String -> Maybe Int
-readMaybeInt = readMaybe
+readMaybeInt :: T.Text -> Maybe Int
+readMaybeInt t = readMaybe (T.unpack t)
 
 -- |Flips a coin and sends the result to the sender of the given message (in the same channel)
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
@@ -112,7 +112,7 @@ logToConsole s = do
 handleOtherCmd :: Message -> (RestChan, Gateway, z) -> IO ()
 handleOtherCmd msg dis = if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (words (tail (T.unpack (messageText msg))))) >= 2
                          then do
-                            let arg = (words (tail (T.unpack (messageText msg)))) !! 1
+                            let arg = (T.words (T.tail (messageText msg))) !! 1
                             let rndUpperLimit = readMaybeInt arg
                             case rndUpperLimit of
                                 Just n -> if n >= 1 && n <= 1000000
