@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Bot where
+module DiscordBot where
 
 import Control.Exception (finally)
 import Control.Monad (when)
@@ -14,6 +14,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
 import Coin
+import DiscordExtensions
 
 -- |Text sent by the bot when an unknown command is used
 disobeyText :: T.Text
@@ -73,10 +74,6 @@ sendFlip message discord = do
     n <- flipCoin
     respond (T.pack (mentionAuthor message ++ " " ++ (show n))) message discord
 
--- |Creates a mention of the given message's author (format: "<@userid>" where "userid" is the user's integer ID)
-mentionAuthor :: Message -> String
-mentionAuthor message = "<@" ++ (authorId message) ++ ">"
-
 -- |Responds to a message with a given text (in the same channel) and logs the response to the console
 respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
 respond responseText message discord = do
@@ -85,21 +82,6 @@ respond responseText message discord = do
         Left error -> logToConsole ("ERROR: " ++ show error)
         Right message -> logToConsole ("fprod-bot: " ++ (show (messageText message)))
 
--- |Returns true if the given message was sent by a bot
-fromBot :: Message -> Bool
-fromBot message = userIsBot (messageAuthor message)
-
--- |Returns the user ID of the given message's author
-authorId :: Message -> String
-authorId message = show (userId (messageAuthor message))
-
--- |Returns the handle of the given message's author
-authorHandle :: Message -> String
-authorHandle message = userHandle (messageAuthor message)
-
--- |Returns the handle of the given user
-userHandle :: User -> String
-userHandle user = (userName user) ++ "#" ++ (userDiscrim user)
 
 -- |Returns true if the given string is a bot command (starts with '!' followed by at least one other non-space character)
 isCommand :: String -> Bool

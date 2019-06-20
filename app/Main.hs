@@ -1,6 +1,6 @@
 module Main where
 
-import Bot
+import DiscordBot
 
 main :: IO ()
 main = botMain
