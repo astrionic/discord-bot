@@ -22,6 +22,7 @@ import qualified Data.Text.IO as TIO
 
 import Coin
 import DiscordExtensions
+import Logging
 
 -- |Text sent by the bot when an unknown command is used
 disobeyText :: T.Text
@@ -99,13 +100,6 @@ isCommand (c:cs) = (c == '!') && (head cs) /= ' '
 -- |Returns true if the given message is a bot command
 msgIsCommand :: Message -> Bool
 msgIsCommand message = isCommand (T.unpack (messageText message))
-
--- |Prepends a time stamp to the given string and prints it to the console 
-logToConsole :: String -> IO ()
-logToConsole s = do
-    currentTime <- getZonedTime
-    let formattedTime = formatTime defaultTimeLocale "%F %T" currentTime
-    putStrLn (formattedTime ++ " " ++ s)
 
 -- TODO Clean this mess up.
 -- |Handles longer commands.
