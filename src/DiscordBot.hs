@@ -42,14 +42,13 @@ startBot = do
     hSetBuffering stdout LineBuffering
 
     logToConsole "Starting bot!"
-    fileExists <- doesFileExist "./auth_token"
-    if fileExists then do
-        token <- T.strip <$> TIO.readFile "./auth_token"
-        discord <- loginRestGateway (Auth token)
-        finally (handleEvents discord)
-                (stopDiscord discord)
-    else
-        logToConsole "ERROR: Cant find auth_token."
+    maybeToken <- readAuthToken
+    case maybeToken of
+        Nothing -> logToConsole "ERROR: Cant find auth_token."
+        Just token -> do
+            discord <- loginRestGateway (Auth token)
+            finally (handleEvents discord)
+                    (stopDiscord discord)
 
 -- |Reads the auth token from a file. Returns 'Nothing' if the file doesn't exist.
 readAuthToken :: IO (Maybe T.Text)
