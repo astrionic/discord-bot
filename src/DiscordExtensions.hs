@@ -13,7 +13,7 @@ import qualified Data.Text as T
 
 -- |Creates a mention of the given message's author (format: "<@userid>" where "userid" is the user's integer ID)
 mentionAuthor :: Message -> T.Text
-mentionAuthor message = "<@" <> T.pack (authorId message) <> ">"
+mentionAuthor message = "<@" <> authorId message <> ">"
 
 -- |Returns the handle of the given user
 userHandle :: User -> String
@@ -24,8 +24,8 @@ authorHandle :: Message -> String
 authorHandle message = userHandle (messageAuthor message)
 
 -- |Returns the user ID of the given message's author
-authorId :: Message -> String
-authorId message = show (userId (messageAuthor message))
+authorId :: Message -> T.Text
+authorId message = T.pack (show (userId (messageAuthor message)))
 
 -- |Returns true if the given message was sent by a bot
 fromBot :: Message -> Bool
