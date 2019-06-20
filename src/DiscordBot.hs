@@ -65,8 +65,8 @@ handleEvents discord = do
                     "commands" -> respond commandsText message discord
                     "role" -> respond "Not implemented yet" message discord
                     "flip" -> sendFlip message discord
-                    "roll" -> respond (T.pack ((mentionAuthor message) ++ " The `!roll` command \
-                        \requires an argument (e.g. `!roll 20`).")) message discord
+                    "roll" -> respond ((mentionAuthor message) <>" The `!roll` command \
+                        \requires an argument (e.g. `!roll 20`).") message discord
                     otherCmd -> handleOtherCmd message discord
             handleEvents discord
         _ -> handleEvents discord
@@ -79,7 +79,7 @@ readMaybeInt t = readMaybe (T.unpack t)
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
 sendFlip message discord = do
     n <- flipCoin
-    respond (T.pack (mentionAuthor message ++ " " ++ (show n))) message discord
+    respond (mentionAuthor message <> " " <> T.pack (show n)) message discord
 
 -- |Responds to a message with a given text (in the same channel) and logs the response to the console
 respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
@@ -118,9 +118,9 @@ handleOtherCmd msg dis = if (T.isPrefixOf "roll " (T.tail (messageText msg))) &&
                                 Just n -> if n >= 1 && n <= 1000000
                                             then do
                                             rndInt <- randomRIO (1, n)
-                                            respond (T.pack (mentionAuthor msg ++ " rolls " ++ show rndInt ++ " (1-" ++ (show n) ++ ")")) msg dis
+                                            respond (mentionAuthor msg <> " rolls " <> T.pack (show rndInt) <> " (1-" <> T.pack (show n) <> ")") msg dis
                                             else do
-                                            respond (T.pack ((mentionAuthor msg) ++ " Invalid argument, integer between 1 and 1000000 required.")) msg dis
+                                            respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
                                 Nothing -> do
-                                    respond (T.pack ((mentionAuthor msg) ++ " Invalid argument, integer between 1 and 1000000 required.")) msg dis
+                                    respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
                          else respond disobeyText msg dis

@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module DiscordExtensions where
 {-|
 Module      : DiscordExtensions
@@ -5,11 +7,13 @@ Description : Contains some useful functions related to the discord-haskell libr
 Copyright   : (c) Adrian Hitz, 2019
 Stability   : experimental
 -}
+import Data.Monoid ((<>))
 import Discord
+import qualified Data.Text as T
 
 -- |Creates a mention of the given message's author (format: "<@userid>" where "userid" is the user's integer ID)
-mentionAuthor :: Message -> String
-mentionAuthor message = "<@" ++ (authorId message) ++ ">"
+mentionAuthor :: Message -> T.Text
+mentionAuthor message = "<@" <> T.pack (authorId message) <> ">"
 
 -- |Returns the handle of the given user
 userHandle :: User -> String
