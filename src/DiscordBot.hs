@@ -93,9 +93,8 @@ handleCommand botCmd message discord = case botCmd of
     BotCmd CmdList _ -> respond commandsText message discord
     BotCmd CmdFlip _ -> sendFlip message discord
     BotCmd CmdRole _ -> respond "Not implemented yet" message discord
-    BotCmd CmdRoll [] -> respond ((mentionAuthor message) <>" The `!roll` command \
-        \requires an argument (e.g. `!roll 20`).") message discord
-    _ -> handleOtherCmd message discord
+    BotCmd CmdRoll args -> handleCmdRoll args message discord
+    _ -> return ()
 
 -- |Returns true if the given message is a bot command
 msgIsCommand :: Message -> Bool
@@ -115,25 +114,21 @@ sendFlip message discord = do
     n <- flipCoin
     respond (mentionAuthor message <> " " <> T.pack (show n)) message discord
 
--- TODO Clean this mess up.
--- |Handles longer commands.
-handleOtherCmd :: Message -> (RestChan, Gateway, z) -> IO ()
-handleOtherCmd msg dis =
-    if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (T.words (T.tail (messageText msg)))) >= 2
-        then do
-        let arg = (T.words (T.tail (messageText msg))) !! 1
-        let rndUpperLimit = readMaybeInt arg
-        case rndUpperLimit of
-            Just n ->
-                if n >= 1 && n <= 1000000
-                    then do
-                        rndInt <- randomRIO (1, n)
-                        respond (mentionAuthor msg <> " rolls " <> T.pack (show rndInt) <> " (1-" <> T.pack (show n) <> ")") msg dis
-                    else do
-                        respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
-            Nothing -> do
-                respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
-        else respond disobeyText msg dis
+-- |Handles 'CmdRoll'. Calls 'sendRoll' if valid arguments (or no arguments) were passed.
+handleCmdRoll :: [T.Text] -> Message -> (RestChan, Gateway, z) -> IO ()
+handleCmdRoll [] msg discord = sendRoll 20 msg discord
+handleCmdRoll (arg:args) msg discord = do
+    case readMaybeInt arg of
+        Just n -> sendRoll n msg discord
+        Nothing -> respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg discord
+
+-- |Generates a random number and sends it in a response to the given 'Message'.
+sendRoll :: Int -> Message -> (RestChan, Gateway, z) -> IO ()
+sendRoll n msg discord
+    | n >= 1 && n <= 1000000 = do
+        rndInt <- randomRIO (1, n)
+        respond (mentionAuthor msg <> " rolls " <> T.pack (show rndInt) <> " (1-" <> T.pack (show n) <> ")") msg discord
+    | otherwise = respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg discord
 
 -- |Tries to read an int from a 'Data.Text.Text'
 readMaybeInt :: T.Text -> Maybe Int
