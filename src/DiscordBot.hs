@@ -34,7 +34,8 @@ commandsText = "I support the following commands:\n\
                \`!commands` displays this message.\n\
                \`!role` is not implemented yet.\n\
                \`!flip` flips a coin.\n\
-               \`!roll 20` rolls a 20-sided die. Also works with any other integer from `1` to `1000000`."
+               \`!roll 20` rolls a 20-sided die. Also works with any other integer from `"
+               <> tshow rollLowerBound <> "` to `"<> tshow rollUpperBound <> "` (inclusive)."
 
 -- |Path to the authentication token
 authTokenPath = "./auth_token" :: String
