@@ -90,15 +90,9 @@ handleMessage message discord = do
                 \requires an argument (e.g. `!roll 20`).") message discord
             otherCmd -> handleOtherCmd message discord
 
--- |Tries to read an int from a 'Data.Text.Text'
-readMaybeInt :: T.Text -> Maybe Int
-readMaybeInt = readMaybe . T.unpack
-
--- |Flips a coin and sends the result to the sender of the given message (in the same channel)
-sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
-sendFlip message discord = do
-    n <- flipCoin
-    respond (mentionAuthor message <> " " <> T.pack (show n)) message discord
+-- |Returns true if the given message is a bot command
+msgIsCommand :: Message -> Bool
+msgIsCommand message = isCommand $ messageText message
 
 -- |Responds to a message with a given text (in the same channel) and logs the response to the console
 respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
@@ -108,9 +102,11 @@ respond responseText message discord = do
         Left error -> logToConsole ("ERROR: " <> T.pack (show error))
         Right message -> logToConsole ("fprod-bot: " <> (messageText message))
 
--- |Returns true if the given message is a bot command
-msgIsCommand :: Message -> Bool
-msgIsCommand message = isCommand $ messageText message
+-- |Flips a coin and sends the result to the sender of the given message (in the same channel)
+sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
+sendFlip message discord = do
+    n <- flipCoin
+    respond (mentionAuthor message <> " " <> T.pack (show n)) message discord
 
 -- TODO Clean this mess up.
 -- |Handles longer commands.
@@ -131,3 +127,7 @@ handleOtherCmd msg dis =
             Nothing -> do
                 respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
         else respond disobeyText msg dis
+
+-- |Tries to read an int from a 'Data.Text.Text'
+readMaybeInt :: T.Text -> Maybe Int
+readMaybeInt = readMaybe . T.unpack
