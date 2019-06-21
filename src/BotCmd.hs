@@ -18,11 +18,14 @@ data BotCmd = BotCmd CmdType [T.Text]
 
 -- |Turns a given 'Data.Text.Text' into the corresponding 'CmdType' 
 parseCmdType :: T.Text -> CmdType
-parseCmdType "flip"     = CmdFlip
-parseCmdType "commands" = CmdList
-parseCmdType "role"     = CmdRole
-parseCmdType "roll"     = CmdRoll
-parseCmdType _          = CmdUnknown
+parseCmdType t = case t of
+    "flip"     -> CmdFlip
+    "commands" -> CmdList
+    "list"     -> CmdList
+    "help"     -> CmdList
+    "role"     -> CmdRole
+    "roll"     -> CmdRoll
+    _          -> CmdUnknown
 
 -- |Parses a given 'Data.Text.Text' and returns the corresponding 'BotCmd' if it contained a correctly formatted
 -- command.
