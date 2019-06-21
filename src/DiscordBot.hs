@@ -29,8 +29,8 @@ disobeyText :: T.Text
 disobeyText = "You are not my king yet, boy! Nor would I obey that command even if you were!"
 
 -- |Text listing the supported commands
-commandsText :: T.Text
-commandsText = "I support the following commands:\n\
+cmdListText :: T.Text
+cmdListText = "I support the following commands:\n\
                \`!commands` displays this message.\n\
                \`!role` is not implemented yet.\n\
                \`!flip` flips a coin.\n\
@@ -83,42 +83,42 @@ handleEvents discord = do
     event <- nextEvent discord
     case event of
         Left error -> logToConsole ("ERROR: " <> T.pack (show error))
-        Right (MessageCreate message) -> do
-            handleMessage message discord
+        Right (MessageCreate msg) -> do
+            handleMessage msg discord
             handleEvents discord
         _ -> handleEvents discord
 
 -- |Handles messages that are sent to the bot (including messages that are sent on a server where the bot is present)
 handleMessage :: Message -> (RestChan, Gateway, z) -> IO ()
-handleMessage message discord = do
-    when ((not (fromBot message)) && (msgIsCommand message)) $ do
+handleMessage msg discord = do
+    when ((not (isFromBot msg)) && (msgIsCommand msg)) $ do
         -- Log command sent by user to console
-        logToConsole ((authorHandle message) <> ": " <> (messageText message))
-        let maybeBotCmd = parseCmd (messageText message)
+        logToConsole ((authorHandle msg) <> ": " <> (messageText msg))
+        let maybeBotCmd = parseCmd (messageText msg)
         case maybeBotCmd of
-            Just botCmd -> handleCommand botCmd message discord
+            Just botCmd -> handleCommand botCmd msg discord
             Nothing -> return ()
 
 -- |Handles commands that are the bot receives
 handleCommand :: BotCmd -> Message -> (RestChan, Gateway, z) -> IO ()
-handleCommand botCmd message discord = case botCmd of
-    BotCmd CmdList _ -> respond commandsText message discord
-    BotCmd CmdFlip _ -> sendFlip message discord
-    BotCmd CmdRole _ -> respond "Not implemented yet" message discord
-    BotCmd CmdRoll args -> handleCmdRoll args message discord
-    _ -> return ()
+handleCommand botCmd msg discord = case botCmd of
+    BotCmd CmdList _    -> respond cmdListText msg discord
+    BotCmd CmdFlip _    -> sendFlipResponse msg discord
+    BotCmd CmdRole _    -> respond "Not implemented yet" msg discord
+    BotCmd CmdRoll args -> handleCmdRoll args msg discord
+    _                   -> return ()
 
 -- |Returns true if the given message is a bot command
 msgIsCommand :: Message -> Bool
-msgIsCommand message = isCommand $ messageText message
+msgIsCommand msg = isCommand $ messageText msg
 
 -- |Responds to a message with a given text (in the same channel) and logs the response to the console
 respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
-respond responseText message discord = do
-    response <- (restCall discord (CreateMessage (messageChannel message) responseText))
+respond responseText msg discord = do
+    response <- (restCall discord (CreateMessage (messageChannel msg) responseText))
     case response of
         Left error -> logToConsole ("ERROR: " <> T.pack (show error))
-        Right message -> logToConsole ("fprod-bot: " <> (messageText message))
+        Right msg -> logToConsole ("fprod-bot: " <> (messageText msg))
 
 -- |Prepends a mention of the given message's author to the given text and then responds with it to the message
 respondWithMention :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
@@ -127,22 +127,22 @@ respondWithMention responseText msg discord = do
     respond responseTextWithMention msg discord
 
 -- |Flips a coin and sends the result to the sender of the given message (in the same channel)
-sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
-sendFlip message discord = do
+sendFlipResponse :: Message -> (RestChan, Gateway, z) -> IO ()
+sendFlipResponse msg discord = do
     n <- flipCoin
-    respond (mentionAuthor message <> " " <> T.pack (show n)) message discord
+    respondWithMention  tshow show n)) msg discord
 
 -- |Handles 'CmdRoll'. Calls 'sendRoll' if valid arguments (or no arguments) were passed.
 handleCmdRoll :: [T.Text] -> Message -> (RestChan, Gateway, z) -> IO ()
-handleCmdRoll [] msg discord = sendRoll 20 msg discord
+handleCmdRoll [] msg discord = sendRollResponse 20 msg discord
 handleCmdRoll (arg:args) msg discord = do
     case readMaybeInt arg of
-        Just n -> sendRoll n msg discord
+        Just n -> sendRollResponse n msg discord
         Nothing -> respond invRollArgResponse msg discord
 
 -- |Generates a random number and sends it in a response to the given 'Message'.
-sendRoll :: Int -> Message -> (RestChan, Gateway, z) -> IO ()
-sendRoll n msg discord
+sendRollResponse :: Int -> Message -> (RestChan, Gateway, z) -> IO ()
+sendRollResponse n msg discord
     | n >= rollLowerBound && n <= rollUpperBound = do
         rndInt <- randomRIO (rollLowerBound, n)
         let responseText = " rolls " <> tshow rndInt <> " ( " <> tshow rollLowerBound <> "-" <> tshow n <> ")"

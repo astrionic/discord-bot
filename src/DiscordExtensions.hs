@@ -29,5 +29,5 @@ authorId :: Message -> T.Text
 authorId message = T.pack (show (userId (messageAuthor message)))
 
 -- |Returns true if the given message was sent by a bot
-fromBot :: Message -> Bool
-fromBot message = userIsBot (messageAuthor message)
+isFromBot :: Message -> Bool
+isFromBot message = userIsBot (messageAuthor message)
