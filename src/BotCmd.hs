@@ -11,16 +11,17 @@ module BotCmd where
 import qualified Data.Text as T
 
 -- |Represents the different types of commands which the bot understands
-data CmdType = CmdRoll | CmdFlip | CmdList | CmdUnknown
+data CmdType = CmdFlip | CmdList | CmdRole | CmdRoll | CmdUnknown
 
 -- |Represents a complete bot command with it's 'CmdType' and list of arguments
 data BotCmd = BotCmd CmdType [T.Text]
 
 -- |Turns a given 'Data.Text.Text' into the corresponding 'CmdType' 
 parseCmdType :: T.Text -> CmdType
-parseCmdType "roll"     = CmdRoll
 parseCmdType "flip"     = CmdFlip
 parseCmdType "commands" = CmdList
+parseCmdType "role"     = CmdRole
+parseCmdType "roll"     = CmdRoll
 parseCmdType _          = CmdUnknown
 
 -- |Parses a given 'Data.Text.Text' and returns the corresponding 'BotCmd' if it contained a correctly formatted

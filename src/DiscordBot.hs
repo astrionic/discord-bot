@@ -82,13 +82,20 @@ handleMessage message discord = do
     when ((not (fromBot message)) && (msgIsCommand message)) $ do
         -- Log command sent by user to console
         logToConsole ((authorHandle message) <> ": " <> (messageText message))
-        case T.tail (messageText message) of
-            "commands" -> respond commandsText message discord
-            "role" -> respond "Not implemented yet" message discord
-            "flip" -> sendFlip message discord
-            "roll" -> respond ((mentionAuthor message) <>" The `!roll` command \
-                \requires an argument (e.g. `!roll 20`).") message discord
-            otherCmd -> handleOtherCmd message discord
+        let maybeBotCmd = parseCmd (messageText message)
+        case maybeBotCmd of
+            Just botCmd -> handleCommand botCmd message discord
+            Nothing -> return ()
+
+-- |Handles commands that are the bot receives
+handleCommand :: BotCmd -> Message -> (RestChan, Gateway, z) -> IO ()
+handleCommand botCmd message discord = case botCmd of
+    BotCmd CmdList _ -> respond commandsText message discord
+    BotCmd CmdFlip _ -> sendFlip message discord
+    BotCmd CmdRole _ -> respond "Not implemented yet" message discord
+    BotCmd CmdRoll [] -> respond ((mentionAuthor message) <>" The `!roll` command \
+        \requires an argument (e.g. `!roll 20`).") message discord
+    _ -> handleOtherCmd message discord
 
 -- |Returns true if the given message is a bot command
 msgIsCommand :: Message -> Bool
