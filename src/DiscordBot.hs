@@ -117,7 +117,7 @@ respond :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
 respond responseText msg discord = do
     response <- (restCall discord (CreateMessage (messageChannel msg) responseText))
     case response of
-        Left error -> logToConsole ("ERROR: " <> T.pack (show error))
+        Left error -> logToConsole ("ERROR: " <> tshow error)
         Right msg -> logToConsole ("fprod-bot: " <> (messageText msg))
 
 -- |Prepends a mention of the given message's author to the given text and then responds with it to the message
@@ -130,7 +130,7 @@ respondWithMention responseText msg discord = do
 sendFlipResponse :: Message -> (RestChan, Gateway, z) -> IO ()
 sendFlipResponse msg discord = do
     n <- flipCoin
-    respondWithMention  tshow show n)) msg discord
+    respondWithMention (tshow n) msg discord
 
 -- |Handles 'CmdRoll'. Calls 'sendRoll' if valid arguments (or no arguments) were passed.
 handleCmdRoll :: [T.Text] -> Message -> (RestChan, Gateway, z) -> IO ()
