@@ -144,7 +144,7 @@ sendRoll :: Int -> Message -> (RestChan, Gateway, z) -> IO ()
 sendRoll n msg discord
     | n >= rollLowerBound && n <= rollUpperBound = do
         rndInt <- randomRIO (rollLowerBound, n)
-        responseText <- " rolls " <> tshow rndInt) <> " ( " <> tshow rollLowerBound <> "-" <> tshow n <> ")"
+        let responseText = " rolls " <> tshow rndInt <> " ( " <> tshow rollLowerBound <> "-" <> tshow n <> ")"
         respondWithMention responseText msg discord
     | otherwise = respond invRollArgResponse msg discord
 
