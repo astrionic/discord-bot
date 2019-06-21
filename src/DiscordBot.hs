@@ -19,6 +19,7 @@ import Text.Read
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
+import BotCmd
 import Coin
 import DiscordExtensions
 import Logging
@@ -71,18 +72,23 @@ handleEvents discord = do
     case event of
         Left error -> logToConsole ("ERROR: " <> T.pack (show error))
         Right (MessageCreate message) -> do
-            when ((not (fromBot message)) && (msgIsCommand message)) $ do
-                -- Log command sent by user to console
-                logToConsole ((authorHandle message) <> ": " <> (messageText message))
-                case T.tail (messageText message) of
-                    "commands" -> respond commandsText message discord
-                    "role" -> respond "Not implemented yet" message discord
-                    "flip" -> sendFlip message discord
-                    "roll" -> respond ((mentionAuthor message) <>" The `!roll` command \
-                        \requires an argument (e.g. `!roll 20`).") message discord
-                    otherCmd -> handleOtherCmd message discord
+            handleMessage message discord
             handleEvents discord
         _ -> handleEvents discord
+
+-- |Handles messages that are sent to the bot (including messages that are sent on a server where the bot is present)
+handleMessage :: Message -> (RestChan, Gateway, z) -> IO ()
+handleMessage message discord = do
+    when ((not (fromBot message)) && (msgIsCommand message)) $ do
+        -- Log command sent by user to console
+        logToConsole ((authorHandle message) <> ": " <> (messageText message))
+        case T.tail (messageText message) of
+            "commands" -> respond commandsText message discord
+            "role" -> respond "Not implemented yet" message discord
+            "flip" -> sendFlip message discord
+            "roll" -> respond ((mentionAuthor message) <>" The `!roll` command \
+                \requires an argument (e.g. `!roll 20`).") message discord
+            otherCmd -> handleOtherCmd message discord
 
 -- |Tries to read an int from a 'Data.Text.Text'
 readMaybeInt :: T.Text -> Maybe Int
@@ -102,32 +108,26 @@ respond responseText message discord = do
         Left error -> logToConsole ("ERROR: " <> T.pack (show error))
         Right message -> logToConsole ("fprod-bot: " <> (messageText message))
 
--- |Returns true if the given string is a bot command (starts with '!' followed by at least one other non-space
--- character)
-isCommand :: String -> Bool
-isCommand [] = False
-isCommand [c] = False
-isCommand (c:cs) = (c == '!') && (head cs) /= ' '
-
 -- |Returns true if the given message is a bot command
 msgIsCommand :: Message -> Bool
-msgIsCommand message = isCommand (T.unpack (messageText message))
+msgIsCommand message = isCommand $ messageText message
 
 -- TODO Clean this mess up.
 -- |Handles longer commands.
 handleOtherCmd :: Message -> (RestChan, Gateway, z) -> IO ()
 handleOtherCmd msg dis =
     if (T.isPrefixOf "roll " (T.tail (messageText msg))) && (length (T.words (T.tail (messageText msg)))) >= 2
-    then do
-    let arg = (T.words (T.tail (messageText msg))) !! 1
-    let rndUpperLimit = readMaybeInt arg
-    case rndUpperLimit of
-        Just n -> if n >= 1 && n <= 1000000
+        then do
+        let arg = (T.words (T.tail (messageText msg))) !! 1
+        let rndUpperLimit = readMaybeInt arg
+        case rndUpperLimit of
+            Just n ->
+                if n >= 1 && n <= 1000000
                     then do
-                    rndInt <- randomRIO (1, n)
-                    respond (mentionAuthor msg <> " rolls " <> T.pack (show rndInt) <> " (1-" <> T.pack (show n) <> ")") msg dis
+                        rndInt <- randomRIO (1, n)
+                        respond (mentionAuthor msg <> " rolls " <> T.pack (show rndInt) <> " (1-" <> T.pack (show n) <> ")") msg dis
                     else do
-                    respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
-        Nothing -> do
-            respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
-    else respond disobeyText msg dis
+                        respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
+            Nothing -> do
+                respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg dis
+        else respond disobeyText msg dis
