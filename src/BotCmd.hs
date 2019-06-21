@@ -2,7 +2,7 @@
 
 {-|
 Module      : BotCmd
-Description : 
+Description : Contains data structures and functions related to bot commands
 Copyright   : (c) Adrian Hitz, 2019
 Stability   : experimental
 -}
