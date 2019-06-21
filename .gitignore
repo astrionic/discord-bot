@@ -1,7 +1,13 @@
 # Ignore authentication token
 auth_token
 
-# From https://github.com/github/gitignore/blob/master/Haskell.gitignore
+# Stack
+.stack-work/
+discord-bot.cabal
+*~
+stack.yaml.lock
+
+# Haskell (from https://github.com/github/gitignore/blob/master/Haskell.gitignore)
 dist
 dist-*
 cabal-dev
