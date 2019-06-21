@@ -6,7 +6,7 @@ The bot can recognise commands and respond to them. It currently supports the fo
 
 - `!commands` to show a list of available commands
 - `!flip` flips a coin
-- `!roll`rolls a 20-sided die
+- `!roll` rolls a 20-sided die
 - `!roll n` rolls an n-sided die, where n is an integer from 2 to 1,000,000.
 
 
