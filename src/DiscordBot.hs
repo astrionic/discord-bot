@@ -39,6 +39,17 @@ commandsText = "I support the following commands:\n\
 -- |Path to the authentication token
 authTokenPath = "./auth_token" :: String
 
+-- |Lower bound for random number generation for dice rolls
+rollLowerBound = 2 :: Int;
+
+-- |Upper bound for random number generation for dice rolls
+rollUpperBound = 10^6 :: Int;
+
+-- |Message that is sent if a user uses an invalid argument for 'CmdRoll'
+invRollArgResponse :: T.Text
+invRollArgResponse = "Invalid argument, integer between " <> tshow rollLowerBound <> " and "
+    <> tshow rollUpperBound <> " required."
+
 -- |Starts the bot
 startBot :: IO ()
 startBot = do
@@ -108,6 +119,12 @@ respond responseText message discord = do
         Left error -> logToConsole ("ERROR: " <> T.pack (show error))
         Right message -> logToConsole ("fprod-bot: " <> (messageText message))
 
+-- |Prepends a mention of the given message's author to the given text and then responds with it to the message
+respondWithMention :: T.Text -> Message -> (RestChan, Gateway, z) -> IO ()
+respondWithMention responseText msg discord = do
+    let responseTextWithMention = ((mentionAuthor msg) <> " " <> responseText)
+    respond responseTextWithMention msg discord
+
 -- |Flips a coin and sends the result to the sender of the given message (in the same channel)
 sendFlip :: Message -> (RestChan, Gateway, z) -> IO ()
 sendFlip message discord = do
@@ -120,16 +137,21 @@ handleCmdRoll [] msg discord = sendRoll 20 msg discord
 handleCmdRoll (arg:args) msg discord = do
     case readMaybeInt arg of
         Just n -> sendRoll n msg discord
-        Nothing -> respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg discord
+        Nothing -> respond invRollArgResponse msg discord
 
 -- |Generates a random number and sends it in a response to the given 'Message'.
 sendRoll :: Int -> Message -> (RestChan, Gateway, z) -> IO ()
 sendRoll n msg discord
-    | n >= 1 && n <= 1000000 = do
-        rndInt <- randomRIO (1, n)
-        respond (mentionAuthor msg <> " rolls " <> T.pack (show rndInt) <> " (1-" <> T.pack (show n) <> ")") msg discord
-    | otherwise = respond ((mentionAuthor msg) <> " Invalid argument, integer between 1 and 1000000 required.") msg discord
+    | n >= rollLowerBound && n <= rollUpperBound = do
+        rndInt <- randomRIO (rollLowerBound, n)
+        responseText <- " rolls " <> tshow rndInt) <> " ( " <> tshow rollLowerBound <> "-" <> tshow n <> ")"
+        respondWithMention responseText msg discord
+    | otherwise = respond invRollArgResponse msg discord
 
 -- |Tries to read an int from a 'Data.Text.Text'
 readMaybeInt :: T.Text -> Maybe Int
 readMaybeInt = readMaybe . T.unpack
+
+-- |Converts a value of a type that is an instance of 'Show' to 'Data.Text.Text'
+tshow :: Show a => a -> T.Text
+tshow a = T.pack $ show a
