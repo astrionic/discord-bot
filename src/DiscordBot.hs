@@ -15,18 +15,14 @@ import Discord
 import System.Directory
 import System.IO
 import System.Random
-import Text.Read
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
+import qualified Data.Text.Read as TR
 
 import BotCmd
 import Coin
 import DiscordExtensions
 import Logging
-
--- |Text sent by the bot when an unknown command is used
-disobeyText :: T.Text
-disobeyText = "You are not my king yet, boy! Nor would I obey that command even if you were!"
 
 -- |Text listing the supported commands
 cmdListText :: T.Text
@@ -136,22 +132,18 @@ sendFlipResponse msg discord = do
 handleCmdRoll :: [T.Text] -> Message -> (RestChan, Gateway, z) -> IO ()
 handleCmdRoll [] msg discord = sendRollResponse 20 msg discord
 handleCmdRoll (arg:args) msg discord = do
-    case readMaybeInt arg of
-        Just n -> sendRollResponse n msg discord
-        Nothing -> respond invRollArgResponse msg discord
+    case TR.decimal arg of
+        Right (n, _) -> sendRollResponse n msg discord
+        Left _ -> respond invRollArgResponse msg discord
 
 -- |Generates a random number and sends it in a response to the given 'Message'.
 sendRollResponse :: Int -> Message -> (RestChan, Gateway, z) -> IO ()
 sendRollResponse n msg discord
     | n >= rollLowerBound && n <= rollUpperBound = do
         rndInt <- randomRIO (rollLowerBound, n)
-        let responseText = " rolls " <> tshow rndInt <> " ( " <> tshow rollLowerBound <> "-" <> tshow n <> ")"
+        let responseText = " rolls " <> tshow rndInt <> " (1-" <> tshow n <> ")"
         respondWithMention responseText msg discord
     | otherwise = respond invRollArgResponse msg discord
-
--- |Tries to read an int from a 'Data.Text.Text'
-readMaybeInt :: T.Text -> Maybe Int
-readMaybeInt = readMaybe . T.unpack
 
 -- |Converts a value of a type that is an instance of 'Show' to 'Data.Text.Text'
 tshow :: Show a => a -> T.Text
