@@ -14,7 +14,7 @@ import qualified Data.Text as T
 
 -- |Creates a mention of the given message's author (format: "<@userid>" where "userid" is the user's integer ID)
 mentionAuthor :: Message -> T.Text
-mentionAuthor message = "<@" <> authorId message <> ">"
+mentionAuthor msg = "<@" <> authorId msg <> ">"
 
 -- |Returns the handle of the given user
 userHandle :: User -> T.Text
@@ -22,12 +22,12 @@ userHandle user = T.pack ((userName user) ++ "#" ++ (userDiscrim user))
 
 -- |Returns the handle of the given message's author
 authorHandle :: Message -> T.Text
-authorHandle message = userHandle (messageAuthor message)
+authorHandle msg = userHandle (messageAuthor msg)
 
 -- |Returns the user ID of the given message's author
 authorId :: Message -> T.Text
-authorId message = T.pack (show (userId (messageAuthor message)))
+authorId msg = T.pack (show (userId (messageAuthor msg)))
 
 -- |Returns true if the given message was sent by a bot
 isFromBot :: Message -> Bool
-isFromBot message = userIsBot (messageAuthor message)
+isFromBot msg = userIsBot (messageAuthor msg)
