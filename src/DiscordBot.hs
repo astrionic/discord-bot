@@ -95,7 +95,7 @@ handleMessage msg discord = do
             Just botCmd -> handleCommand botCmd msg discord
             Nothing -> return ()
 
--- |Handles commands that are the bot receives
+-- |Handles commands that the bot receives
 handleCommand :: BotCmd -> Message -> (RestChan, Gateway, z) -> IO ()
 handleCommand botCmd msg discord = case botCmd of
     BotCmd CmdList _    -> respond cmdListText msg discord
